@@ -27,6 +27,32 @@ export const useMemberStore = defineStore(
   },
   // TODO: 持久化
   {
-    persist: true,
+    //网页端配置
+    // persist: true,
+    //小程序配置
+    persist: {
+      storage: {
+        getItem(key) {
+          return uni.getStorage({
+            key: 'key',
+            success: ({ data }) => {},
+            fail: (error) => {},
+          })
+        },
+        setItem(key, value) {
+          // 正确写法，传递对象参数，key 是存储的键名，data 是要存储的值
+          uni.setStorage({
+            key: key,
+            data: value,
+            success: () => {
+              /* 可选的成功回调 */
+            },
+            fail: (err) => {
+              /* 可选的失败回调 */
+            },
+          })
+        },
+      },
+    },
   },
 )
