@@ -38,3 +38,71 @@ const httpInterceptor = {
 }
 uni.addInterceptor('request', httpInterceptor)
 uni.addInterceptor('uploadFile', httpInterceptor)
+
+/**
+ * 请求函数
+ * @param  UniApp.RequestOptions
+ * @returns Promise
+ *  1. 返回 Promise 对象
+ *  2. 获取数据成功
+ *    2.1 提取核心数据 res.data
+ *    2.2 添加类型，支持泛型
+ *  3. 获取数据失败
+ *    3.1 401错误  -> 清理用户信息，跳转到登录页
+ *    3.2 其他错误 -> 根据后端错误信息轻提示
+ *    3.3 网络错误 -> 提示用户换网络
+ */
+
+interface Data<T> {
+  code: string
+  msg: string
+  result: T
+}
+
+export const http = <T>(options: UniApp.RequestOptions) => {
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      //获取数据成功
+      success(res) {
+        //判断响应码
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          //  2.1 提取核心数据 res.data
+          resolve(res.data as Data<T>)
+        } else if (res.statusCode === 401) {
+          //401错误  -> 清理用户信息，跳转到登录页
+          //   const memberStore = useMemberStore()
+          //   memberStore.clearProfile()
+          //   uni.navigateTo({ url: '/pages/login/login' })
+          //   reject(res)
+          uni.showToast({
+            title: '登录已过期，请重新登录',
+            icon: 'none',
+            mask: true,
+            duration: 1500,
+          })
+          // 延迟跳转，确保提示能显示
+          setTimeout(() => {
+            const memberStore = useMemberStore()
+            memberStore.clearProfile()
+            uni.navigateTo({ url: '/pages/login/login' })
+          }, 1500)
+          reject(res)
+        } else {
+          uni.showToast({
+            title: (res.data as Data<T>).msg || '请求错误',
+            icon: 'none',
+          })
+          reject(res)
+        }
+      },
+      fail(err) {
+        uni.showToast({
+          icon: 'none',
+          title: '网络错误,换个网络试试',
+        })
+        reject(err)
+      },
+    })
+  })
+}
