@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
-import '@/utils/api/request'
-import { http } from '@/utils/api/request'
+import '@/utils/request'
+import { http } from '@/utils/request'
 const memberStore = useMemberStore()
 //测试请求
 const getData = async () => {
@@ -15,7 +15,6 @@ const getData = async () => {
 
 <template>
   <view class="my">
-    <view>会员信息：{{ memberStore.profile }}</view>
     <button
       @tap="
         memberStore.setProfile({
