@@ -2,10 +2,11 @@
 import XtxSwiper from '@/components/XtxSwiper.vue'
 import CustomNavBar from './components/CustomNavBar.vue'
 import CategoryPanel from './components/CategoryPanel.vue'
-import { getHomeBannerAPI, getHomeCategoryAPI } from '@/services/home'
+import HomePanel from './components/HomePanel.vue'
+import { getHomeBannerAPI, getHomeCategoryAPI, getHomePanelAPI } from '@/services/home'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import type { bannerItemType, categoryItemType } from '@/types/home'
+import type { bannerItemType, categoryItemType, homePanelType } from '@/types/home'
 //轮播图
 const bannerList = ref<bannerItemType[]>([])
 const getHomeBanner = async () => {
@@ -18,10 +19,16 @@ const getCategoryPanel = async () => {
   const res = await getHomeCategoryAPI()
   categoryPanelList.value = res.result
 }
-
+//热门推荐
+const homePanelList = ref<homePanelType[]>([])
+const getHomePanel = async () => {
+  const res = await getHomePanelAPI()
+  homePanelList.value = res.result
+}
 onLoad(() => {
   getHomeBanner()
   getCategoryPanel()
+  getHomePanel()
 })
 </script>
 
@@ -33,6 +40,8 @@ onLoad(() => {
     <XtxSwiper :list="bannerList" />
     <!-- 自定义前台分类 -->
     <CategoryPanel :list="categoryPanelList"></CategoryPanel>
+    <!-- 自定义热门推荐 -->
+    <HomePanel :list="homePanelList"></HomePanel>
   </view>
 </template>
 
